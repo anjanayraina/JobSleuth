@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Query
 from typing import List
-from fetchers import fetch_remoteok, fetch_wellfound
+from fetchers import fetch_remoteok
 from models.job import Job
 
 app = FastAPI(title="JobPilot Backend")
@@ -23,8 +23,6 @@ def fetch_jobs(
     all_jobs = []
     if "remoteok" in sources:
         all_jobs += fetch_remoteok(keywords)
-    if "wellfound" in sources:
-        all_jobs += fetch_wellfound(keywords)
-    # Add more sources here
+        # Add more sources here
     jobs = dedupe_jobs(all_jobs)
     return jobs
