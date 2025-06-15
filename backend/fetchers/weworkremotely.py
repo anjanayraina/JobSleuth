@@ -4,6 +4,7 @@ import feedparser
 def fetch_weworkremotely(keywords=["python"]):
     jobs = []
     url = "https://weworkremotely.com/categories/remote-programming-jobs.rss"
+    data = feedparser.parse(url)
     feed = feedparser.parse(requests.get(url).content)
     for entry in feed.entries:
         title = entry.title
