@@ -1,16 +1,12 @@
 # extractors/llm_extractor.py
 def extract_with_llm(text):
     """
-    Placeholder for LLM-based extraction.
-    Call a hosted LLM (e.g., Hugging Face inference API) here.
+    Plug in your Hugging Face/OpenAI call here.
+    Should return a dict with at least 'title', 'company', 'link'.
     """
-    # Return a dict matching Job fields or use your LLM logic
+    # For now, just return empty
     return {
         "title": "",
         "company": "",
-        "link": "",
-        "description": text,
-        "date_posted": "",
-        "location": "",
-        "salary": ""
+        "link": ""
     }

@@ -10,6 +10,5 @@ def extract_salary(text):
     return match.group() if match else ""
 
 def extract_date(text):
-    # Placeholder: could use dateparser or similar lib
+    # TODO: Use dateparser for better results
     return ""
-
