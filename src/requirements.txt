@@ -3,3 +3,9 @@ uvicorn
 requests
 beautifulsoup4
 pandas
+python-dotenv
+telethon
+transformers
+torch
+pydantic
+sentence-transformers
