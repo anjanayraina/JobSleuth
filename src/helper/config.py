@@ -13,4 +13,5 @@ class ConfigSingleton:
             load_dotenv(env_path)
             cls._instance.api_id = int(os.getenv('ID'))
             cls._instance.api_hash = os.getenv('APP_HASH')
+            cls._instance.mongodb_uri = os.getenv('MONGODB_URI')
         return cls._instance
