@@ -9,3 +9,6 @@ transformers
 torch
 pydantic
 sentence-transformers
+pymongo
+apscheduler
+loguru
