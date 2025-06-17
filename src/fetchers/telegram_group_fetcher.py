@@ -36,7 +36,7 @@ class TelegramGroupFetcher:
         with open(path, 'r') as f:
             return json.load(f)
 
-    def fetch_last_24_hours(self):
+    def fetch_messages(self):
         now = datetime.now(timezone.utc)
         since = now - timedelta(hours=24)
         results = []

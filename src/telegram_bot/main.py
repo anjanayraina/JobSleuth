@@ -36,7 +36,7 @@ def extract_job_fields(message):
 
 if __name__ == "__main__":
     fetcher = TelegramGroupFetcher(groups_path='../resources/groups.json')
-    messages = fetcher.fetch_last_24_hours()
+    messages = fetcher.fetch_messages()
     jobs = [extract_job_fields(msg) for msg in messages]
     # Example: print structured jobs
     for job in jobs:

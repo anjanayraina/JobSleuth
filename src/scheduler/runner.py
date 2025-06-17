@@ -1,4 +1,4 @@
-from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from fetchers.telegram_group_fetcher import TelegramGroupFetcher
 from extractors.extract_job_fields import extract_job_fields
 from extractors.tagger import extract_tags
@@ -24,11 +24,9 @@ def fetch_and_store_jobs():
             db.insert_job(job_data)
             log.info(f"Inserted job: {job_data['title']} at {job_data['company']}")
 
-if __name__ == "__main__":
-    scheduler = BlockingScheduler()
+def start_scheduler():
+    scheduler = BackgroundScheduler()
     scheduler.add_job(fetch_and_store_jobs, 'interval', minutes=30)
-    log.info("Scheduler started. Press Ctrl+C to exit.")
-    try:
-        scheduler.start()
-    except (KeyboardInterrupt, SystemExit):
-        log.info("Scheduler stopped.")
+    scheduler.start()
+    log.info("Background scheduler running.")
+
