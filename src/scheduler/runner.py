@@ -26,11 +26,11 @@ def save_last_scrape_time(dt):
     with open(config.last_scrape_path, "w") as f:
         json.dump({"last_scrape": dt.isoformat()}, f)
 
-def fetch_and_store_jobs():
+async def fetch_and_store_jobs():
     log.info("Starting scheduled job fetch...")
     last_scrape = load_last_scrape_time()
     fetcher = TelegramGroupFetcher()
-    messages = fetcher.fetch_messages(since=last_scrape)
+    messages = await fetcher.fetch_messages(since=last_scrape)
     log.info(f"Fetched {len(messages)} messages since {last_scrape}.")
 
     new_last_scrape = last_scrape

@@ -9,10 +9,10 @@ from datetime import datetime
 log = Logger()
 db = MongoDB()
 
-def fetch_and_store_jobs():
+async def fetch_and_store_jobs():
     log.info("Starting scheduled job fetch...")
-    fetcher = TelegramGroupFetcher(groups_path="../resources/groups.json")
-    messages = fetcher.fetch_messages()
+    fetcher = TelegramGroupFetcher()
+    messages = await fetcher.fetch_messages()
     log.info(f"Fetched {len(messages)} messages.")
 
     for message in messages:

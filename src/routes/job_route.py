@@ -16,8 +16,8 @@ log = Logger()
 
 @router.post("/trigger_fetch_jobs")
 async def trigger_fetch_jobs():
-    fetcher = TelegramGroupFetcher(groups_path="./resources/groups.json")
-    messages = fetcher.fetch_messages()
+    fetcher = TelegramGroupFetcher()
+    messages = await fetcher.fetch_messages()
     log.info(f"Manually triggered: Fetched {len(messages)} messages.")
 
     inserted = 0

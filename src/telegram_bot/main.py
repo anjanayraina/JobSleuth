@@ -34,10 +34,3 @@ def extract_job_fields(message):
     )
     return job
 
-if __name__ == "__main__":
-    fetcher = TelegramGroupFetcher(groups_path='../resources/groups.json')
-    messages = fetcher.fetch_messages()
-    jobs = [extract_job_fields(msg) for msg in messages]
-    # Example: print structured jobs
-    for job in jobs:
-        print(job.json(indent=2))
