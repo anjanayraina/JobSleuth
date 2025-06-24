@@ -9,3 +9,6 @@ class Job(BaseModel):
     date_posted: Optional[str] = ""
     location: Optional[str] = ""
     salary: Optional[str] = ""
+    tags: Optional[list] = []
+    source: Optional[str] = ""
+    fetched_at: Optional[str] = ""

@@ -1,16 +1,15 @@
 from pymongo import MongoClient
-import os
+from helper.config import ConfigSingleton
 
 class MongoDB:
-    def __init__(self, uri=None, db_name="job_db"):
-        uri = uri or os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-        self.client = MongoClient(uri)
-        self.db = self.client[db_name]
-        self.collection = self.db.jobs
+    def __init__(self):
+        config = ConfigSingleton()
+        self.client = MongoClient(config.mongodb_uri)
+        self.db = self.client['jobsleuth']
+        self.jobs_col = self.db['jobs']
 
     def insert_job(self, job):
-        if not self.collection.find_one({"link": job["link"]}):
-            self.collection.insert_one(job)
+        return self.jobs_col.insert_one(job)
 
-    def find_jobs(self, query={}, limit=100):
-        return list(self.collection.find(query).limit(limit))
+    def find_jobs(self, query=None):
+        return list(self.jobs_col.find(query or {}))

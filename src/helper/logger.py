@@ -1,23 +1,16 @@
-# helpers/logger.py
-from loguru import logger
-import sys
+import logging
 
 class Logger:
-    def __init__(self, log_file="app.log"):
-        logger.remove()  # Remove default handler
-        logger.add(sys.stdout, level="DEBUG")
-        logger.add(log_file, level="DEBUG", rotation="10 MB", retention="7 days")
-        self.logger = logger
+    def __init__(self, name="JobSleuth"):
+        self.logger = logging.getLogger(name)
+        if not self.logger.hasHandlers():
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter('[%(asctime)s][%(levelname)s] %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+            self.logger.setLevel(logging.INFO)
 
-    def info(self, message):
-        self.logger.info(message)
-
-    def error(self, message):
-        self.logger.error(message)
-
-    def debug(self, message):
-        self.logger.debug(message)
-
-    def warning(self, message):
-        self.logger.warning(message)
-
+    def info(self, msg): self.logger.info(msg)
+    def error(self, msg): self.logger.error(msg)
+    def debug(self, msg): self.logger.debug(msg)
+    def warning(self, msg): self.logger.warning(msg)

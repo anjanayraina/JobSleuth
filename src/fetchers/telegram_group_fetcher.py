@@ -1,59 +1,38 @@
-# fetchers/telegram_group_fetcher.py
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone, timedelta
 from telethon.sync import TelegramClient
 from helper.config import ConfigSingleton
-
-class JobPostFilter:
-    def __init__(self, min_length=30, min_keyword_matches=2):
-        self.keywords = [
-            "hiring", "we are hiring", "open position", "looking for",
-            "job", "vacancy", "opening", "role", "position",
-            "join our team", "apply", "send your cv", "remote", "onsite",
-            "developer", "engineer", "designer", "internship", "recruiting", "career",
-            "full-time", "part-time", "contract", "salary"
-        ]
-        self.min_length = min_length
-        self.min_keyword_matches = min_keyword_matches
-
-    def is_job_post(self, text: str) -> bool:
-        if not text or len(text) < self.min_length:
-            return False
-        text_lower = text.lower()
-        hits = sum(kw in text_lower for kw in self.keywords)
-        return hits >= self.min_keyword_matches
+from helper.logger import Logger
 
 class TelegramGroupFetcher:
-    def __init__(self, groups_path='resources/groups.json'):
+    def __init__(self):
         self.config = ConfigSingleton()
         self.api_id = self.config.api_id
         self.api_hash = self.config.api_hash
-        self.groups = self._load_groups(groups_path)
-        self.session_name = "fetch24hr_session"
-        self.job_filter = JobPostFilter()
+        self.groups_path = self.config.groups_path
+        self.session_name = "telegram_fetcher_session"
+        self.logger = Logger()
 
-    def _load_groups(self, path):
-        with open(path, 'r') as f:
+    def load_groups(self):
+        with open(self.groups_path, 'r') as f:
             return json.load(f)
 
-    def fetch_messages(self):
-        now = datetime.now(timezone.utc)
-        since = now - timedelta(hours=24)
+    def fetch_messages(self, since=None):
+        groups = self.load_groups()
         results = []
+        if not since:
+            since = datetime.now(timezone.utc) - timedelta(hours=48)
         with TelegramClient(self.session_name, self.api_id, self.api_hash) as client:
-            for group in self.groups:
-                print(f"\n====== Fetching messages from: {group} ======")
+            for group in groups:
+                self.logger.info(f"Fetching messages from group: {group}")
                 for message in client.iter_messages(group):
                     if message.date >= since and message.text:
-                        if self.job_filter.is_job_post(message.text):
-                            sender = message.sender
-                            sender_name = getattr(sender, 'first_name', None) or getattr(sender, 'title', 'Unknown')
-                            results.append({
-                                "group": group,
-                                "sender": sender_name,
-                                "date": str(message.date),
-                                "text": message.text
-                            })
+                        results.append({
+                            "group": group,
+                            "date": str(message.date),
+                            "text": message.text
+                        })
                     elif message.date < since:
                         break
+        self.logger.info(f"Fetched {len(results)} messages.")
         return results
