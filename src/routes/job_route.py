@@ -8,6 +8,8 @@ from extractors.tagger import extract_tags
 from helper.db import MongoDB
 from helper.logger import Logger
 from datetime import datetime
+from typing import List
+from models.job import Job
 
 router = APIRouter()
 extractor = JobExtractorService()
@@ -28,7 +30,7 @@ async def trigger_fetch_jobs():
             job_dict["tags"] = extract_tags(job_obj.description)
             job_dict["source"] = "telegram"
             job_dict["fetched_at"] = datetime.utcnow().isoformat()
-            db.insert_job(job_dict)
+            #db.insert_job(job_dict)
             inserted += 1
             log.info(f"Inserted job: {job_obj.title} at {job_obj.company}")
 
@@ -38,3 +40,18 @@ async def trigger_fetch_jobs():
 def get_jobs(tags: str = Query(default=None)):
     return get_jobs_service(tags)
 
+@router.get("/fetch_extracted_jobs", response_model=List[Job])
+async def fetch_extracted_jobs():
+    """
+    Fetches latest Telegram group messages, extracts job objects,
+    and returns a list of structured job postings (not saved to DB).
+    """
+    fetcher = TelegramGroupFetcher()
+    messages = await fetcher.fetch_messages()
+    jobs = []
+    for message in messages:
+        job_obj = extractor.extract_job_fields(message)
+        if job_obj:
+            jobs.append(job_obj)
+    log.info(f"Fetched and extracted {len(jobs)} jobs (not saved to DB).")
+    return jobs
