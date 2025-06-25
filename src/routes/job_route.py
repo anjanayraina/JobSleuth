@@ -1,5 +1,5 @@
 # routes/jobs.py
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query , Body
 from services.jobs_service import get_jobs_service
 from fastapi import APIRouter
 from services.job_extractor_service import JobExtractorService
@@ -10,7 +10,7 @@ from helper.logger import Logger
 from datetime import datetime
 from typing import List
 from models.job import Job
-
+from models.extract_job_request import ExtractJobsRequest
 router = APIRouter()
 extractor = JobExtractorService()
 db = MongoDB()
@@ -54,4 +54,14 @@ async def fetch_extracted_jobs():
         if job_obj:
             jobs.append(job_obj)
     log.info(f"Fetched and extracted {len(jobs)} jobs (not saved to DB).")
+    return jobs
+
+@router.post("/extract_jobs", response_model=List[Job])
+async def extract_jobs_from_texts(request: ExtractJobsRequest):
+    jobs = []
+    for text in request.texts:
+        message = {"text": text}
+        job = extractor.extract_job_fields(message)
+        if job:
+            jobs.append(job)
     return jobs

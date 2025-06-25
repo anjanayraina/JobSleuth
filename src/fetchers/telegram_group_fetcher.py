@@ -3,6 +3,8 @@ import json
 from datetime import datetime, timezone, timedelta
 from helper.config import ConfigSingleton
 from helper.logger import Logger
+from extractors.regex_extractor import extract_url
+
 
 class TelegramGroupFetcher:
     def __init__(self):
@@ -37,11 +39,10 @@ class TelegramGroupFetcher:
         self.logger.info(f"Fetched {len(results)} messages.")
         return results
 
-    def extract_all_links(message):
+    def extract_all_links(self, message):
         links = []
 
-        from extractors.regex_extractor import extract_url
-        url = extract_url(message.text)
+        url = extract_url(message["text"])
         if url:
             links.append(url)
 
