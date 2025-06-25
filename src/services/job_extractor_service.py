@@ -1,25 +1,23 @@
-import re
-from extractors.regex_extractor import extract_url, extract_salary
+from extractors.regex_extractor import (
+    extract_url, extract_salary, extract_email, extract_telegram_username
+)
 from extractors.ner_extractor import extract_ner_fields
 from extractors.llm_extractor import extract_with_llm
+from extractors.tagger import extract_tags
+from fetchers.telegram_group_fetcher import TelegramGroupFetcher
+from helper.logger import Logger
 from models.job import Job
 
 class JobExtractorService:
+    def __init__(self):
+        self.logger = Logger()
+        self.telegram_group_fetcher = TelegramGroupFetcher()
     def clean_text(self, text):
-        """
-        Removes special characters and extra spaces.
-        Leaves alphanumerics and spaces only.
-        """
-        # Remove all non-alphanumeric except spaces (preserve URLs if needed)
+        import re
         text = re.sub(r"[^\w\s]", " ", text)
-        # Collapse multiple spaces to one
         return re.sub(r"\s+", " ", text).strip()
 
     def is_potential_job_posting(self, text):
-        """
-        Quickly checks if the text is likely a job post.
-        Returns True if it should be further processed.
-        """
         cleaned = self.clean_text(text)
         if len(cleaned) < 40:
             return False
@@ -30,17 +28,24 @@ class JobExtractorService:
         cleaned_lower = cleaned.lower()
         if not any(word in cleaned_lower for word in job_keywords):
             return False
-        if not extract_url(text):  # use original text for URL
-            return False
         return True
 
     def extract_job_fields(self, message):
         text = message['text']
 
+        # Early skip if not likely a job post
         if not self.is_potential_job_posting(text):
             return None
 
-        link = extract_url(text)
+        # Extract links (plain, embedded, buttons)
+        links = self.telegram_group_fetcher.extract_all_links(message)
+        link = links[0] if links else None
+
+        # Contact extraction (if no link)
+        email = extract_email(text)
+        telegram_contact = extract_telegram_username(text)
+        contact = email or telegram_contact
+
         salary = extract_salary(text)
         ner_fields = extract_ner_fields(text)
         if not ner_fields['company'] or not ner_fields['title']:
@@ -53,15 +58,18 @@ class JobExtractorService:
             title = ner_fields['title']
             location = ner_fields['location']
 
-        if not (title and company and link):
-            return None
+        if not (title and company):
+            return None  # These two are must
 
+        tags = extract_tags(text)
         return Job(
             title=title,
             company=company,
             link=link,
+            contact=contact,
             description=text,
             date_posted=message.get('date', ""),
             location=location,
-            salary=salary
+            salary=salary,
+            tags=tags
         )

@@ -36,3 +36,27 @@ class TelegramGroupFetcher:
                         break
         self.logger.info(f"Fetched {len(results)} messages.")
         return results
+
+    def extract_all_links(message):
+        links = []
+
+        from extractors.regex_extractor import extract_url
+        url = extract_url(message.text)
+        if url:
+            links.append(url)
+
+        # 2. Embedded links (entities)
+        for entity in getattr(message, "entities", []) or []:
+            if hasattr(entity, "url") and entity.url:
+                links.append(entity.url)
+
+        # 3. Button URLs
+        if getattr(message, "reply_markup", None):
+            for row in message.reply_markup.rows:
+                for button in row.buttons:
+                    if hasattr(button, "url") and button.url:
+                        links.append(button.url)
+
+        return list(dict.fromkeys(links))
+
+
