@@ -12,6 +12,8 @@ flowchart TD
     C -.->|Logging & Error| G[Logger]
     B -.->|Logging & Error| G
 
+
+
     style A fill:#c0e6ff,stroke:#007acc
     style B fill:#ffe7ba,stroke:#fa8c16
     style C fill:#ffd6e7,stroke:#eb2f96
