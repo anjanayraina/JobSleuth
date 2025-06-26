@@ -25,7 +25,7 @@ def extract_ner_fields(text):
             location = ent["word"]
     return {
         "company": company.strip(),
-        "title": title.strip(),  # Now filled by regex if possible
+        "title": title.strip(),
         "location": location.strip()
     }
 
