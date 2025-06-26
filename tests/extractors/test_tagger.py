@@ -20,7 +20,7 @@ class TestTagger:
         tags = extract_tags(desc)
         assert "javascript" in tags
         assert "cloud" in tags
-        assert "machine learning" in tags
+        assert "ai/ml" in tags
 
     def test_extract_tags_none(self):
         desc = "No technical or industry keywords."

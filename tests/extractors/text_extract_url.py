@@ -23,7 +23,7 @@ class TestURLExtractor:
     def test_multiple_urls(self):
         text = "Info at https://first.com and apply at https://second.com/jobs"
         result = extract_url(text)
-        assert result in ["https://first.com", "https://second.com/jobs"]  # Accept either if your function returns the first found
+        assert result in ["https://first.com", "https://second.com/jobs"]
 
     def test_embedded_url(self):
         text = "Check out <a href='https://embedded.com/job'>this job</a>."
