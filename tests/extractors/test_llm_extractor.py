@@ -51,3 +51,8 @@ class TestLLMExtractor:
         assert "python" in result["title"].lower()
         assert "developer" in result["title"].lower()
         assert isinstance(result["company"], str)
+    def test_extraction_invalid_job(self):
+        text = "Hello, how are you? Just a random message."
+        result = extract_with_llm(text, self.api_key)
+        assert result["company"] in ["", "NA", "N/A"]
+        assert result["title"] in ["", "NA", "N/A"]

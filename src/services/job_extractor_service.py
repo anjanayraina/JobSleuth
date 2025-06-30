@@ -55,6 +55,8 @@ class JobExtractorService:
         if not ner_fields['company'] or not ner_fields['title']:
             llm_fields = extract_with_llm(text ,self.config.openrouter_api_key)
             company = llm_fields['company'] or ner_fields['company']
+            if not (company and company.strip()):
+                return None
             title = llm_fields['title'] or ner_fields['title']
             location = llm_fields['location'] or ner_fields['location']
         else:
