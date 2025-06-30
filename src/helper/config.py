@@ -13,4 +13,6 @@ class ConfigSingleton:
             cls._instance.mongodb_uri = os.getenv('MONGODB_URI')
             cls._instance.telegram_bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
             cls._instance.groups_path = os.getenv('GROUPS_PATH', 'resources/groups.json')
+            cls._instance.openrouter_api_key = os.getenv('OPEN_ROUTER_KEY')
+
         return cls._instance

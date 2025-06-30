@@ -30,7 +30,7 @@ async def trigger_fetch_jobs():
             job_dict["tags"] = extract_tags(job_obj.description)
             job_dict["source"] = "telegram"
             job_dict["fetched_at"] = datetime.utcnow().isoformat()
-            #db.insert_job(job_dict)
+            db.insert_job(job_dict)
             inserted += 1
             log.info(f"Inserted job: {job_obj.title} at {job_obj.company}")
 
