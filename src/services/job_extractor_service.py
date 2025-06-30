@@ -1,3 +1,5 @@
+import re
+
 from extractors.regex_extractor import (
     extract_url, extract_salary, extract_email, extract_telegram_username
 )
@@ -5,6 +7,7 @@ from extractors.ner_extractor import extract_ner_fields
 from extractors.llm_extractor import extract_with_llm
 from extractors.tagger import extract_tags
 from fetchers.telegram_group_fetcher import TelegramGroupFetcher
+from helper import ConfigSingleton
 from helper.logger import Logger
 from models.job import Job
 
@@ -12,6 +15,7 @@ class JobExtractorService:
     def __init__(self):
         self.logger = Logger()
         self.telegram_group_fetcher = TelegramGroupFetcher()
+        self.config = ConfigSingleton()
     def clean_text(self, text):
         import re
         text = re.sub(r"[^\w\s]", " ", text)
@@ -49,7 +53,7 @@ class JobExtractorService:
         salary = extract_salary(text)
         ner_fields = extract_ner_fields(text)
         if not ner_fields['company'] or not ner_fields['title']:
-            llm_fields = extract_with_llm(text)
+            llm_fields = extract_with_llm(text ,self.config.openrouter_api_key)
             company = llm_fields['company'] or ner_fields['company']
             title = llm_fields['title'] or ner_fields['title']
             location = llm_fields['location'] or ner_fields['location']
@@ -62,12 +66,14 @@ class JobExtractorService:
             return None  # These two are must
 
         tags = extract_tags(text)
+        cleaned_text = re.sub(r'[\n\r]+', ' ', text)
+        cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
         return Job(
             title=title,
             company=company,
             link=link,
             contact=contact,
-            description=text,
+            description=cleaned_text,
             date_posted=message.get('date', ""),
             location=location,
             salary=salary,
