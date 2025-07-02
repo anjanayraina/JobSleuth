@@ -12,6 +12,15 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      ID: ${{ secrets.ID }}
+      API_ID: ${{ secrets.API_ID }}
+      APP_HASH: ${{ secrets.APP_HASH }}
+      OPEN_ROUTER_KEY: ${{ secrets.OPEN_ROUTER_KEY }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      API_TOKEN: ${{ secrets.API_TOKEN }}
+      GROUPS_PATH: ${{ secrets.GROUPS_PATH }}
+
     steps:
     - uses: actions/checkout@v4
 
