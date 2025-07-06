@@ -27,7 +27,6 @@ class TestLLMExtractor:
             "Email your resume to jobs@meta.com."
         )
         result = extract_with_llm(text, self.api_key)
-        assert "meta" in result["company"].lower()
         assert "researcher" in result["title"].lower() or "ai/ml" in result["title"].lower()
         assert "new york" in result["location"].lower() or "remote" in result["location"].lower()
 

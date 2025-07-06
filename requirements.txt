@@ -38,3 +38,4 @@ pyyaml
 
 # Logging (Python's stdlib is usually enough, but just in case)
 loguru
+feedparser
