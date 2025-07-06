@@ -1,17 +1,17 @@
-from telethon import TelegramClient  # no `.sync`
+from telethon import TelegramClient
 import json
 from datetime import datetime, timezone, timedelta
 from helper.config import ConfigSingleton
 from helper.logger import Logger
 from extractors.regex_extractor import extract_url
 
-
 class TelegramGroupFetcher:
-    def __init__(self):
+    def __init__(self, groups_path=None):
         self.config = ConfigSingleton()
         self.api_id = self.config.api_id
         self.api_hash = self.config.api_hash
-        self.groups_path = self.config.groups_path
+        # If groups_path provided, use it; else use config value
+        self.groups_path = groups_path or self.config.groups_path
         self.session_name = "telegram_fetcher_session.session"
         self.logger = Logger()
 
@@ -59,5 +59,3 @@ class TelegramGroupFetcher:
                         links.append(button.url)
 
         return list(dict.fromkeys(links))
-
-

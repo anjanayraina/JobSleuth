@@ -20,6 +20,7 @@ jobs:
       MONGODB_URI: ${{ secrets.MONGODB_URI }}
       API_TOKEN: ${{ secrets.API_TOKEN }}
       GROUPS_PATH: ${{ secrets.GROUPS_PATH }}
+      ENV_TYPE: prd
 
     steps:
     - uses: actions/checkout@v4

@@ -28,9 +28,32 @@ INDUSTRY_TAGS = [
 ]
 
 COMPANY_TAGS = [
-    # Not for company extraction! Just if you want to tag "FAANG" or major employers as a tech stack/category
-    "google", "facebook", "meta", "apple", "amazon", "microsoft", "netflix", "tiktok", "twitter", "x", "openai", "stripe", "uber", "airbnb", "shopify"
+    # FAANG, MAANG, and big tech
+    "google", "facebook", "meta", "apple", "amazon", "microsoft", "netflix",
+    "tiktok", "twitter", "x", "openai", "stripe", "uber", "airbnb", "shopify",
+
+    # Other US/EU tech giants
+    "linkedin", "youtube", "instagram", "snapchat", "slack", "dropbox", "zoom", "adobe", "oracle", "salesforce",
+    "paypal", "square", "block", "coinbase", "robinhood", "github", "gitlab", "asana", "notion", "figma",
+
+    # Cloud/enterprise/AI
+    "databricks", "snowflake", "palantir", "huawei", "sap", "ibm", "red hat", "cloudflare", "digitalocean", "fastly",
+
+    # Crypto & web3
+    "binance", "coinbase", "kraken", "consensys", "alchemy", "chainlink", "polygon", "solana", "circle", "ripple", "gemini",
+
+    # Indian/Asian unicorns & startups
+    "ola", "flipkart", "swiggy", "zomato", "paytm", "inmobi", "freshworks", "browserstack", "razorpay",
+
+    # More SaaS/product/startup companies
+    "atlassian", "zendesk", "intercom", "monday.com", "clickup", "miro", "mailchimp", "calendly", "hubspot", "wise",
+    "wise", "wise", "wise",
+    "klarna", "revolut", "n26", "stripe", "wise", "coinbase", "revolut", "robinhood",
+
+    # Misc
+    "bytedance", "plaid", "square", "brex", "expedia", "doordash", "lyft", "grab", "glovo", "deliveroo", "toss"
 ]
+
 
 def extract_tags(text):
     text_lower = text.lower()
