@@ -5,6 +5,7 @@ class Job(BaseModel):
     title: str
     company: str
     description: str
+    job_hash: str = ""
     date_posted: Optional[str] = ""
     location: Optional[str] = ""
     salary: Optional[str] = ""

@@ -46,3 +46,15 @@ def extract_telegram_username(text):
     matches = username_pattern.findall(text)
     # Remove if it's part of an email
     return next((u for u in matches if "@" + u[1:] not in text), None)
+
+def extract_special_location_keywords(text):
+    """Return 'Remote', 'Hybrid', 'On site', etc. if present in the text."""
+    text_lower = text.lower()
+    location_keywords = []
+    if "remote" in text_lower:
+        location_keywords.append("Remote")
+    if "hybrid" in text_lower:
+        location_keywords.append("Hybrid")
+    if "on site" in text_lower or "onsite" in text_lower:
+        location_keywords.append("On site")
+    return location_keywords

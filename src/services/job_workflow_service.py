@@ -23,17 +23,20 @@ class JobsWorkflowService:
             if job:
                 job_dict = job.dict()
                 job_dict["source"] = "telegram"
-                job_dict["fetched_at"] = datetime.now(timezone.utc).isoformat()
-                jobs_to_insert.append(job_dict)
+                job_dict["fetched_at"] = datetime.now().isoformat()
+                if not self.db.job_exists(job_dict["job_hash"]):
+                    jobs_to_insert.append(job_dict)
             else:
                 self.logger.debug(f"Skipping message: {msg.get('text', '')[:60]}...")
 
         if jobs_to_insert:
-            self.db.insert_many(jobs_to_insert)
-            self.logger.info(f"Inserted {len(jobs_to_insert)} jobs to the database")
+            num_inserted = self.db.insert_many(jobs_to_insert)
+            self.logger.info(f"Inserted {num_inserted} jobs to the database")
         else:
             self.logger.info("No valid jobs found to insert")
         return len(jobs_to_insert)
+
+
 if __name__ == "__main__":
     workflow = JobsWorkflowService()
     num_inserted = asyncio.run(workflow.run_workflow())
