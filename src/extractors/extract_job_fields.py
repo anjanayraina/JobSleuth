@@ -1,4 +1,3 @@
-# extractors/extract_job_fields.py
 import re
 from extractors.regex_extractor import extract_url
 from extractors.ner_extractor import extract_ner_fields
@@ -17,7 +16,7 @@ def extract_title_company_regex(text):
             return match.group("title").strip(), match.group("company").strip()
     return "", ""
 
-def extract_job_fields(text):
+def extract_job_fields(text, api_key):
     # 1. Extract link with regex
     link = extract_url(text)
     # 2. NER for company/title
@@ -29,8 +28,8 @@ def extract_job_fields(text):
         title = title or regex_title
         company = company or regex_company
     # 4. Fallback to LLM if still missing
-    if (not title or not company) and link:
-        llm_fields = extract_with_llm(text)
+    if (not title or not company) and api_key:
+        llm_fields = extract_with_llm(text, api_key)
         title = title or llm_fields.get('title', "")
         company = company or llm_fields.get('company', "")
         link = link or llm_fields.get('link', "")

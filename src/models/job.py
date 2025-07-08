@@ -14,3 +14,4 @@ class Job(BaseModel):
     tags: Optional[List[str]] = []
     source: Optional[str] = "telegram"
     fetched_at: Optional[str] = None
+    job_type: Optional[str] = None
