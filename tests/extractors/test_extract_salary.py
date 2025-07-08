@@ -63,3 +63,13 @@ class TestRegexSalaryExtractor:
         text = "No salary info given here."
         result = extract_salary(text)
         assert result == ""
+
+    def test_extract_salary_with_regex_link(self):
+        text = "Binance is hiring [Risk Operation Specialist](https://jobs.lever.co/binance/a1687d88-100d-470f-ac1a-baa27389a734)"
+        result = extract_salary(text)
+        assert result == ""
+
+    def test_extract_salary_with_regex_link_2(self):
+        text = "Binance is hiring [Application Security Engineer](https://jobs.lever.co/binance/0c5cb730-6208-47e1-a4a8-5f794e54ee79)"
+        result = extract_salary(text)
+        assert result == ""
