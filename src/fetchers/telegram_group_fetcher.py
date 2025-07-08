@@ -1,9 +1,11 @@
 from telethon import TelegramClient
+from telethon.tl.types import MessageEntityTextUrl
 import json
 from datetime import datetime, timezone, timedelta
 from helper.config import ConfigSingleton
 from helper.logger import Logger
 from extractors.regex_extractor import extract_url
+import re
 
 class TelegramGroupFetcher:
     def __init__(self, groups_path=None):
@@ -29,10 +31,12 @@ class TelegramGroupFetcher:
                 self.logger.info(f"Fetching messages from group: {group}")
                 async for message in client.iter_messages(group):
                     if message.date >= since and message.text:
+                        links = self.extract_all_links(message)
                         results.append({
                             "group": group,
                             "date": str(message.date),
-                            "text": message.text
+                            "text": message.text,
+                            "links": links
                         })
                     elif message.date < since:
                         break
@@ -40,22 +44,28 @@ class TelegramGroupFetcher:
         return results
 
     def extract_all_links(self, message):
-        links = []
+        """
+        Extracts all kinds of links from a Telethon message object:
+        - Plain URLs from text
+        - Embedded links (MessageEntityTextUrl)
+        - Button URLs (reply_markup)
+        """
+        links = set()
 
-        url = extract_url(message["text"])
-        if url:
-            links.append(url)
+        if getattr(message, "text", None):
+            url_pattern = r'https?://[^\s\)\]]+'
+            links.update(re.findall(url_pattern, message.text))
 
-        # 2. Embedded links (entities)
-        for entity in getattr(message, "entities", []) or []:
-            if hasattr(entity, "url") and entity.url:
-                links.append(entity.url)
+        if getattr(message, "entities", None):
+            for entity in message.entities:
+                if isinstance(entity, MessageEntityTextUrl):
+                    links.add(entity.url)
 
-        # 3. Button URLs
+        # 3. Button URLs in reply_markup (inline buttons)
         if getattr(message, "reply_markup", None):
             for row in message.reply_markup.rows:
                 for button in row.buttons:
                     if hasattr(button, "url") and button.url:
-                        links.append(button.url)
+                        links.add(button.url)
 
-        return list(dict.fromkeys(links))
+        return list(links)

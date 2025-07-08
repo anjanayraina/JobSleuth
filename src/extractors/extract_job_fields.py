@@ -42,5 +42,4 @@ def extract_job_fields(text, api_key):
         "company": company,
         "link": link,
         "description": text
-        # Optionally add date_posted, location, salary if you want
     }
