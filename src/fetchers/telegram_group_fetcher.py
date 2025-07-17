@@ -44,12 +44,6 @@ class TelegramGroupFetcher:
         return results
 
     def extract_all_links(self, message):
-        """
-        Extracts all kinds of links from a Telethon message object:
-        - Plain URLs from text
-        - Embedded links (MessageEntityTextUrl)
-        - Button URLs (reply_markup)
-        """
         links = set()
 
         if getattr(message, "text", None):
@@ -61,7 +55,6 @@ class TelegramGroupFetcher:
                 if isinstance(entity, MessageEntityTextUrl):
                     links.add(entity.url)
 
-        # 3. Button URLs in reply_markup (inline buttons)
         if getattr(message, "reply_markup", None):
             for row in message.reply_markup.rows:
                 for button in row.buttons:

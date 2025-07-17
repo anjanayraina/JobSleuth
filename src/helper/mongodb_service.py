@@ -40,3 +40,14 @@ class MongoDBService:
 
     def fetch_all_jobs(self):
         return list(self.jobs_col.find())
+
+    def find(self, filter_dict=None, limit=10, skip=0, sort=None, projection=None):
+        filter_dict = filter_dict or {}
+        query = self.jobs_col.find(filter_dict, projection)
+        if sort:
+            query = query.sort(sort)
+        if skip:
+            query = query.skip(skip)
+        if limit:
+            query = query.limit(limit)
+        return list(query)
