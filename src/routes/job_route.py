@@ -5,7 +5,7 @@ from fastapi import APIRouter
 from services.job_extractor_service import JobExtractorService
 from fetchers.telegram_group_fetcher import TelegramGroupFetcher
 from extractors.tagger import extract_tags
-from helper.db import MongoDB
+from helper.mongodb_service import MongoDBService
 from helper.logger import Logger
 from datetime import datetime
 from typing import List
@@ -13,7 +13,7 @@ from models.job import Job
 from models.extract_job_request import ExtractJobsRequest
 router = APIRouter()
 extractor = JobExtractorService()
-db = MongoDB()
+db = MongoDBService()
 log = Logger()
 
 @router.post("/trigger_fetch_jobs")

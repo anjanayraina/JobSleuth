@@ -51,3 +51,5 @@ class MongoDBService:
         if limit:
             query = query.limit(limit)
         return list(query)
+    def find_jobs(self, query=None):
+        return list(self.jobs_col.find(query or {}))

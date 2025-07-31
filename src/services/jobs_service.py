@@ -1,8 +1,8 @@
 # services/jobs_service.py
-from helper.db import MongoDB
+from helper.mongodb_service import MongoDBService
 
 def get_jobs_service(tags=None):
-    db = MongoDB()
+    db = MongoDBService()
     query = {}
     if tags:
         query["tags"] = {"$in": tags.split(",")}
