@@ -1,7 +1,6 @@
 # routes/jobs.py
-from fastapi import APIRouter, Query , Body
+from fastapi import APIRouter, Query
 from services.jobs_service import get_jobs_service
-from fastapi import APIRouter
 from services.job_extractor_service import JobExtractorService
 from fetchers.telegram_group_fetcher import TelegramGroupFetcher
 from extractors.tagger import extract_tags
@@ -11,6 +10,7 @@ from datetime import datetime
 from typing import List
 from models.job import Job
 from models.extract_job_request import ExtractJobsRequest
+
 router = APIRouter()
 extractor = JobExtractorService()
 db = MongoDBService()
@@ -26,19 +26,26 @@ async def trigger_fetch_jobs():
     for message in messages:
         job_obj = extractor.extract_job_fields(message)
         if job_obj:
-            job_dict = job_obj.dict()
-            job_dict["tags"] = extract_tags(job_obj.description)
-            job_dict["source"] = "telegram"
-            job_dict["fetched_at"] = datetime.utcnow().isoformat()
+            job_dict = job_obj.model_dump() # Use .model_dump() for Pydantic v2
+            # The 'fetched_at' is already handled by the model's default_factory
             db.insert_job(job_dict)
             inserted += 1
             log.info(f"Inserted job: {job_obj.title} at {job_obj.company}")
 
     return {"status": "success", "inserted_jobs": inserted}
 
-@router.get("/jobs")
+# --- This is the crucial fix ---
+# By setting 'response_model=List[Job]', you tell FastAPI to expect a list of Job
+# objects and to serialize it correctly using your model's rules.
+@router.get("/jobs", response_model=List[Job])
 def get_jobs(tags: str = Query(default=None)):
+    """
+    Gets a list of jobs, optionally filtered by tags.
+    The response is validated and serialized by the Job model.
+    """
     return get_jobs_service(tags)
+# ---------------------------
+
 
 @router.get("/fetch_extracted_jobs", response_model=List[Job])
 async def fetch_extracted_jobs():
@@ -58,9 +65,13 @@ async def fetch_extracted_jobs():
 
 @router.post("/extract_jobs", response_model=List[Job])
 async def extract_jobs_from_texts(request: ExtractJobsRequest):
+    """
+    Extracts job information from a list of raw text strings.
+    """
     jobs = []
     for text in request.texts:
-        message = {"text": text}
+        # Create a mock message dictionary for the extractor
+        message = {"text": text, "date": datetime.now().isoformat()}
         job = extractor.extract_job_fields(message)
         if job:
             jobs.append(job)
