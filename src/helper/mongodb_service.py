@@ -1,6 +1,9 @@
 from pymongo import MongoClient, errors
-from helper import ConfigSingleton
+from helper.config import ConfigSingleton
 from helper.logger import Logger
+
+
+log = Logger(__name__)
 
 class MongoDBService:
     def __init__(self, collection_name=None):
@@ -14,14 +17,15 @@ class MongoDBService:
         try:
             self.jobs_col.create_index("job_hash", unique=True)
         except errors.OperationFailure as e:
-            Logger(__name__).error(f"Index creation error: {e}")
+            log.error(f"Index creation error: {e}")
 
     def insert_job(self, job_dict):
         try:
             self.jobs_col.insert_one(job_dict)
             return True
         except errors.DuplicateKeyError:
-            Logger(__name__).info(f"Duplicate job detected (hash: {job_dict.get('job_hash')})")
+            # This log will now correctly show it came from this file
+            log.info(f"Duplicate job detected (hash: {job_dict.get('job_hash')})")
             return False
 
     def insert_many(self, job_dicts):
@@ -31,25 +35,12 @@ class MongoDBService:
             result = self.jobs_col.insert_many(job_dicts, ordered=False)
             return len(result.inserted_ids)
         except errors.BulkWriteError as bwe:
-            inserted = len([op for op in bwe.details['writeErrors'] if op['code'] != 11000])
-            Logger(__name__).info(f"Bulk write with duplicates. Inserted: {inserted}")
+            inserted = bwe.details['nInserted']
+            log.info(f"Bulk write with duplicates. Inserted: {inserted}")
             return inserted
 
     def job_exists(self, job_hash):
         return self.jobs_col.find_one({"job_hash": job_hash}) is not None
 
-    def fetch_all_jobs(self):
-        return list(self.jobs_col.find())
-
-    def find(self, filter_dict=None, limit=10, skip=0, sort=None, projection=None):
-        filter_dict = filter_dict or {}
-        query = self.jobs_col.find(filter_dict, projection)
-        if sort:
-            query = query.sort(sort)
-        if skip:
-            query = query.skip(skip)
-        if limit:
-            query = query.limit(limit)
-        return list(query)
     def find_jobs(self, query=None):
         return list(self.jobs_col.find(query or {}))
