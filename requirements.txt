@@ -1,41 +1,19 @@
-# FastAPI & ASGI
 fastapi
 uvicorn
-
-# Telegram
 telethon
-
-# Database
 pymongo
-
-# Environment/config
 python-dotenv
 toml
-
-# Scraping, HTTP, Parsing
 requests
 beautifulsoup4
-
-# ML/NLP (NER, HuggingFace, Tagging, etc.)
 transformers
 torch
 sentence-transformers
-
-# Scheduling
 apscheduler
-
-# Data processing
 pandas
-
-# Testing
 pytest
-
-# Type validation
 pydantic
-
-# Optional, for YAML pipeline parsing or other features
 pyyaml
-
-# Logging (Python's stdlib is usually enough, but just in case)
 loguru
 feedparser
+mongomock
