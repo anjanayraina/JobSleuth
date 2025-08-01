@@ -6,7 +6,7 @@ from routes.job_search import router as job_search_router
 from helper.logger import Logger
 import threading
 
-log = Logger()
+log = Logger(__name__)
 app = FastAPI(title="JobPilot Backend")
 
 # --- CORS Middleware Configuration ---

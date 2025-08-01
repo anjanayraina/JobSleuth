@@ -10,7 +10,7 @@ class JobsWorkflowService:
         self.fetcher = TelegramGroupFetcher()
         self.extractor = JobExtractorService()
         self.db = MongoDBService(collection_name)
-        self.logger = Logger()
+        self.logger = Logger(__name__)
 
     async def run_workflow(self):
         self.logger.info("Starting job fetch workflow")

@@ -14,7 +14,7 @@ class TelegramGroupFetcher:
         self.api_hash = self.config.api_hash
         self.groups_path = groups_path or self.config.groups_path
         self.session_name = "telegram_fetcher_session.session"
-        self.logger = Logger()
+        self.logger = Logger(__name__)
 
     def load_groups(self):
         with open(self.groups_path, 'r') as f:

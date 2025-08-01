@@ -13,7 +13,7 @@ from models.job import Job
 
 class JobExtractorService:
     def __init__(self):
-        self.logger = Logger()
+        self.logger = Logger(__name__)
         self.telegram_group_fetcher = TelegramGroupFetcher()
         self.config = ConfigSingleton()
 

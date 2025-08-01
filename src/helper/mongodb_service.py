@@ -14,14 +14,14 @@ class MongoDBService:
         try:
             self.jobs_col.create_index("job_hash", unique=True)
         except errors.OperationFailure as e:
-            Logger().error(f"Index creation error: {e}")
+            Logger(__name__).error(f"Index creation error: {e}")
 
     def insert_job(self, job_dict):
         try:
             self.jobs_col.insert_one(job_dict)
             return True
         except errors.DuplicateKeyError:
-            Logger().info(f"Duplicate job detected (hash: {job_dict.get('job_hash')})")
+            Logger(__name__).info(f"Duplicate job detected (hash: {job_dict.get('job_hash')})")
             return False
 
     def insert_many(self, job_dicts):
@@ -32,7 +32,7 @@ class MongoDBService:
             return len(result.inserted_ids)
         except errors.BulkWriteError as bwe:
             inserted = len([op for op in bwe.details['writeErrors'] if op['code'] != 11000])
-            Logger().info(f"Bulk write with duplicates. Inserted: {inserted}")
+            Logger(__name__).info(f"Bulk write with duplicates. Inserted: {inserted}")
             return inserted
 
     def job_exists(self, job_hash):

@@ -14,7 +14,7 @@ from models.extract_job_request import ExtractJobsRequest
 router = APIRouter()
 extractor = JobExtractorService()
 db = MongoDBService()
-log = Logger()
+log = Logger(__name__)
 
 @router.post("/trigger_fetch_jobs")
 async def trigger_fetch_jobs():
@@ -26,33 +26,23 @@ async def trigger_fetch_jobs():
     for message in messages:
         job_obj = extractor.extract_job_fields(message)
         if job_obj:
-            job_dict = job_obj.model_dump() # Use .model_dump() for Pydantic v2
-            # The 'fetched_at' is already handled by the model's default_factory
+            job_dict = job_obj.model_dump()
             db.insert_job(job_dict)
             inserted += 1
             log.info(f"Inserted job: {job_obj.title} at {job_obj.company}")
 
     return {"status": "success", "inserted_jobs": inserted}
 
-# --- This is the crucial fix ---
-# By setting 'response_model=List[Job]', you tell FastAPI to expect a list of Job
-# objects and to serialize it correctly using your model's rules.
+
 @router.get("/jobs", response_model=List[Job])
-def get_jobs(tags: str = Query(default=None)):
-    """
-    Gets a list of jobs, optionally filtered by tags.
-    The response is validated and serialized by the Job model.
-    """
-    return get_jobs_service(tags)
+def get_jobs():
+    return get_jobs_service()
 # ---------------------------
 
 
 @router.get("/fetch_extracted_jobs", response_model=List[Job])
 async def fetch_extracted_jobs():
-    """
-    Fetches latest Telegram group messages, extracts job objects,
-    and returns a list of structured job postings (not saved to DB).
-    """
+
     fetcher = TelegramGroupFetcher()
     messages = await fetcher.fetch_messages()
     jobs = []
@@ -70,7 +60,6 @@ async def extract_jobs_from_texts(request: ExtractJobsRequest):
     """
     jobs = []
     for text in request.texts:
-        # Create a mock message dictionary for the extractor
         message = {"text": text, "date": datetime.now().isoformat()}
         job = extractor.extract_job_fields(message)
         if job:
