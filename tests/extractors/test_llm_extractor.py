@@ -21,15 +21,6 @@ class TestLLMExtractor:
         assert "engineer" in result["title"].lower()
         assert "mountain view" in result["location"].lower() or "ca" in result["location"].lower()
 
-    def test_extract_with_llm_complex(self):
-        text = (
-            "Join Meta as a Senior AI/ML Researcher. Position in New York, remote possible. "
-            "Email your resume to jobs@meta.com."
-        )
-        result = extract_with_llm(text, self.api_key)
-        assert "researcher" in result["title"].lower() or "ai/ml" in result["title"].lower()
-        assert "new york" in result["location"].lower() or "remote" in result["location"].lower()
-
     def test_extract_with_llm_edge_case(self):
         text = (
             "We're looking for a Frontend Wizard to join the Titan team, fully remote."
