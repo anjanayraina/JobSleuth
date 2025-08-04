@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter
 from services.jobs_service import get_jobs_service
 from services.job_extractor_service import JobExtractorService
 from fetchers.telegram_group_fetcher import TelegramGroupFetcher
-from helper.mongodb_service import MongoDBService
+from services.mongodb_service import MongoDBService
 from helper.logger import Logger
 from typing import List
 from models.job import Job

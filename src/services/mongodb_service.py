@@ -44,3 +44,16 @@ class MongoDBService:
 
     def find_jobs(self, query=None):
         return list(self.jobs_col.find(query or {}))
+
+    def get_user_by_email(self, email: str):
+        users_col = self.db["users"] # Use a separate collection for users
+        return users_col.find_one({"email": email})
+
+    def create_user(self, user_data: dict):
+        users_col = self.db["users"]
+        try:
+            users_col.insert_one(user_data)
+            return True
+        except errors.DuplicateKeyError:
+            log.warning(f"User with email {user_data.get('email')} already exists.")
+            return False

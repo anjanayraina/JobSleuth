@@ -1,8 +1,8 @@
 from fetchers.telegram_group_fetcher import TelegramGroupFetcher
 from services.job_extractor_service import JobExtractorService
-from helper.mongodb_service import MongoDBService
+from services.mongodb_service import MongoDBService
 from helper.logger import Logger
-from datetime import datetime, timezone
+from datetime import datetime
 import asyncio
 
 class JobsWorkflowService:
