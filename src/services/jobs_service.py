@@ -19,6 +19,6 @@ def get_jobs_service(tags: str = None) -> List[Job]:
         job_data["id"] = str(job_data["_id"])
         del job_data["_id"]
         processed_jobs.append(job_data)
-    jobs = [Job.model_validate(job) for job in processed_jobs]
+    jobs = [JobResponse.model_validate(job) for job in processed_jobs]
 
     return jobs
