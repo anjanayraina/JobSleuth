@@ -1,12 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
-from typing import Annotated
+from fastapi import APIRouter, HTTPException, status
 from datetime import timedelta
 
 from services.mongodb_service import MongoDBService
 from helper.password import verify_password, get_password_hash
 from helper.auth_helper import create_access_token
-from models.user import User, UserInDB
+from models.user_models.user import User
+from models.user_models.login_request import LoginRequest
 from helper.logger import Logger
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -15,36 +14,35 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 @router.post("/signup")
-def signup(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+def signup(login_data: LoginRequest): # Use the LoginRequest model for signup as well
     db = MongoDBService()
-    user = db.get_user_by_email(form_data.username)
-    if user:
+    if db.get_user_by_email(login_data.email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",
         )
 
-    hashed_password = get_password_hash(form_data.password)
-    user_data = {"email": form_data.username, "hashed_password": hashed_password}
+    hashed_password = get_password_hash(login_data.password)
+    user_data = {"email": login_data.email, "hashed_password": hashed_password}
     db.create_user(user_data)
 
-    log.info(f"New user signed up: {form_data.username}")
+    log.info(f"New user signed up: {login_data.email}")
     return {"message": "User created successfully. Please log in."}
 
-
 @router.post("/token")
-def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+def login_for_access_token(login_data: LoginRequest):
     db = MongoDBService()
-    user_data = db.get_user_by_email(form_data.username)
+    # The username and password now come from the Pydantic model
+    user_data = db.get_user_by_email(login_data.email)
 
-    if not user_data or not verify_password(form_data.password, user_data["hashed_password"]):
+    if not user_data or not verify_password(login_data.password, user_data.get("hashed_password")):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    user = UserInDB(**user_data)
+    user = User(**user_data)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires

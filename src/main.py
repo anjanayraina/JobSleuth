@@ -1,25 +1,17 @@
 from fastapi import FastAPI
-# 1. Import the CORSMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from routes.job_route import router as jobs_router
 from routes.job_search import router as job_search_router
+from routes.auth_route import router as auth_router # 1. Import the auth router
 from helper.logger import Logger
-import threading
 
 log = Logger(__name__)
 app = FastAPI(title="JobPilot Backend")
 
-# --- CORS Middleware Configuration ---
-
-# 2. Define the list of frontend URLs that are allowed to connect.
-#    This is your "guest list".
 origins = [
-    "http://localhost:5173",  # Your React frontend's address
-    # You can add your live website's URL here later
-    # e.g., "https://www.jobsleuth.com"
+    "http://localhost:5173",
 ]
 
-# 3. Add the middleware to your FastAPI app.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -28,8 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- End of CORS Configuration ---
-
+app.include_router(auth_router)
 app.include_router(jobs_router)
 app.include_router(job_search_router)
 

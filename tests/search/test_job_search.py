@@ -4,7 +4,7 @@ import pytest
 import mongomock
 
 from services.job_search_service import JobSearchService
-from models.job_search_request import JobSearchRequest
+from models.job_models.job_search_request import JobSearchRequest
 
 @pytest.fixture
 def job_search_service():

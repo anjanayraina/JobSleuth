@@ -1,6 +1,6 @@
 # src/services/jobs_service.py
 from services.mongodb_service import MongoDBService
-from models.job import Job
+from models.job_models.job import Job
 from typing import List
 
 

@@ -1,9 +1,8 @@
 # main.py
-from fetchers.telegram_group_fetcher import TelegramGroupFetcher
 from extractors.regex_extractor import extract_url, extract_salary
 from extractors.ner_extractor import extract_ner_fields
 from extractors.llm_extractor import extract_with_llm
-from models.job import Job
+from models.job_models.job import Job
 
 def extract_job_fields(message):
     text = message['text']
@@ -33,4 +32,3 @@ def extract_job_fields(message):
         salary=salary
     )
     return job
-

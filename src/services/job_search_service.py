@@ -1,6 +1,6 @@
 # services/job_search_service.py
 from services.mongodb_service import MongoDBService
-from models.job_search_request import JobSearchRequest
+from models.job_models.job_search_request import JobSearchRequest
 import re
 
 class JobSearchService:

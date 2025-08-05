@@ -5,8 +5,8 @@ from fetchers.telegram_group_fetcher import TelegramGroupFetcher
 from services.mongodb_service import MongoDBService
 from helper.logger import Logger
 from typing import List
-from models.job import Job
-from models.extract_job_request import ExtractJobsRequest
+from models.job_models.job import Job
+from models.job_models.extract_job_request import ExtractJobsRequest
 
 router = APIRouter()
 log = Logger(__name__)

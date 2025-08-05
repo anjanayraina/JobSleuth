@@ -1,6 +1,6 @@
 # routes/job_search.py
 from fastapi import APIRouter
-from models.job_search_request import JobSearchRequest
+from models.job_models.job_search_request import JobSearchRequest
 from services.job_search_service import JobSearchService
 
 router = APIRouter()

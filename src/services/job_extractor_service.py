@@ -1,7 +1,7 @@
 import hashlib
 import re
 from extractors.regex_extractor import (
-    extract_url, extract_salary, extract_email, extract_telegram_username, extract_special_location_keywords
+    extract_salary, extract_email, extract_telegram_username, extract_special_location_keywords
 )
 from extractors.ner_extractor import extract_ner_fields
 from extractors.llm_extractor import extract_with_llm
@@ -9,7 +9,7 @@ from extractors.tagger import extract_tags
 from fetchers.telegram_group_fetcher import TelegramGroupFetcher
 from helper import ConfigSingleton
 from helper.logger import Logger
-from models.job import Job
+from models.job_models.job import Job
 
 class JobExtractorService:
     def __init__(self):

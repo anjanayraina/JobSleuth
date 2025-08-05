@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from helper.config import ConfigSingleton
 from services.mongodb_service import MongoDBService
-from models.user import User
+from models.user_models.user import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
