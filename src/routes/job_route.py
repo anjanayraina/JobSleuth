@@ -6,6 +6,7 @@ from services.mongodb_service import MongoDBService
 from helper.logger import Logger
 from typing import List
 from models.job_models.job import Job
+from models.job_models.job_response import JobResponse
 from models.job_models.extract_job_request import ExtractJobsRequest
 
 router = APIRouter()
@@ -32,7 +33,7 @@ async def trigger_fetch_jobs():
     return {"status": "success", "inserted_jobs": inserted_count}
 
 
-@router.get("/jobs", response_model=List[Job])
+@router.get("/jobs", response_model=List[JobResponse])
 def get_jobs():
     log.info(f"Request received for jobs")
     return get_jobs_service()

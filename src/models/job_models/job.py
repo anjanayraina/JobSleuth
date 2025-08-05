@@ -4,7 +4,6 @@ from datetime import datetime
 from bson import ObjectId
 
 class Job(BaseModel):
-
     title: str
     company: str
     description: str
