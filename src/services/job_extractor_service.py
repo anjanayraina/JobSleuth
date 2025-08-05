@@ -11,6 +11,7 @@ from helper import ConfigSingleton
 from helper.logger import Logger
 from models.job_models.job import Job
 
+#
 class JobExtractorService:
     def __init__(self):
         self.logger = Logger(__name__)
@@ -35,7 +36,6 @@ class JobExtractorService:
         return True
 
     def generate_job_hash(self, job_fields):
-        # Hash based on normalized title, company, link, location
         base_str = (
             (job_fields.get("title") or "").lower().strip() + "|" +
             (job_fields.get("company") or "").lower().strip() + "|" +

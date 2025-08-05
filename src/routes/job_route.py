@@ -1,5 +1,7 @@
+from http.client import HTTPException
+
 from fastapi import APIRouter
-from services.jobs_service import get_jobs_service
+from services.jobs_service import get_jobs_service, get_job_by_id_service
 from services.job_extractor_service import JobExtractorService
 from fetchers.telegram_group_fetcher import TelegramGroupFetcher
 from services.mongodb_service import MongoDBService
@@ -38,6 +40,16 @@ def get_jobs():
     log.info(f"Request received for jobs")
     return get_jobs_service()
 
+
+@router.get("/jobs/{job_id}", response_model=Job)
+def get_single_job(job_id: str):
+    log.info(f"Request received for job with ID: {job_id}")
+    job = get_job_by_id_service(job_id)
+
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    return job
 @router.get("/fetch_extracted_jobs", response_model=List[Job])
 async def fetch_extracted_jobs():
     fetcher = TelegramGroupFetcher()

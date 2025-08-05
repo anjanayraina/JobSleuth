@@ -1,3 +1,4 @@
+from bson import ObjectId
 from pymongo import MongoClient, errors
 from helper.config import ConfigSingleton
 from helper.logger import Logger
@@ -24,7 +25,6 @@ class MongoDBService:
             self.jobs_col.insert_one(job_dict)
             return True
         except errors.DuplicateKeyError:
-            # This log will now correctly show it came from this file
             log.info(f"Duplicate job detected (hash: {job_dict.get('job_hash')})")
             return False
 
@@ -49,6 +49,11 @@ class MongoDBService:
         users_col = self.db["users"] # Use a separate collection for users
         return users_col.find_one({"email": email})
 
+    def find_job_by_id(self, job_id: str):
+        try:
+            return self.jobs_col.find_one({"_id": ObjectId(job_id)})
+        except Exception:
+            return None
     def create_user(self, user_data: dict):
         users_col = self.db["users"]
         try:
