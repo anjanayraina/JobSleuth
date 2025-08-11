@@ -9,7 +9,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-# --- New Imports ---
 from services.mongodb_service import MongoDBService
 from services.job_extractor_service import JobExtractorService
 from helper.logger import Logger
@@ -173,7 +172,6 @@ if __name__ == "__main__":
         extractor.driver_scroll()
         scraped_jobs = extractor.extract_from_linkedin_job_page()
 
-        # --- Save the extracted jobs to the database ---
         if scraped_jobs:
             extractor.save_jobs_to_db(scraped_jobs)
 
