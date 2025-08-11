@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.job_route import router as jobs_router
+from routes.resume_route import router as resume_router
 from routes.job_search import router as job_search_router
 from routes.auth_route import router as auth_router # 1. Import the auth router
 from helper.logger import Logger
@@ -23,6 +24,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(jobs_router)
 app.include_router(job_search_router)
+app.include_router(resume_router)
 
 if __name__ == "__main__":
     import uvicorn
