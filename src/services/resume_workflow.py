@@ -1,5 +1,5 @@
 import requests
-from fastapi import UploadFile, File
+from fastapi import UploadFile, File, HTTPException
 from PyPDF2 import PdfReader
 from io import BytesIO
 
@@ -10,6 +10,9 @@ async def convert_pdf(file: UploadFile):
         reader = PdfReader(BytesIO(pdf_bytes))
         total_pages = len(reader.pages)
         print(f"Total pages found: {total_pages}")
+
+        if total_pages > 5:
+            raise HTTPException(status_code = 400, detail="Resume to be less than 5 pages")
 
         images_in_memory = []
 
