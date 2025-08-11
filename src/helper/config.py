@@ -18,5 +18,6 @@ class ConfigSingleton:
             cls._instance.job_collection_name = os.getenv('JOB_COLLECTION_NAME')
             cls._instance.jwt_secret_key = os.getenv('JWT_SECRET_KEY')
             cls._instance.jwt_algorithm = os.getenv('JWT_ALGORITHM' , 'HS256')
+            cls._instance.hugging_face_api = os.getenv('HUGGING_FACE_API')
 
         return cls._instance

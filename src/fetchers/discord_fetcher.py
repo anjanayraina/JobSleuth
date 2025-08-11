@@ -17,14 +17,11 @@ class DiscordFetcher:
         self.client = discord.Client(intents=intents)
 
     async def fetch_messages(self):
-        """
-        Connects to Discord, fetches messages from configured channels, and then logs out.
-        """
+
         if not self.bot_token or not self.channel_ids:
             self.log.warning("Discord bot token or channel IDs are not configured. Skipping fetch.")
             return []
 
-        # We wrap the login and fetching in a single async task
         try:
             await self.client.login(self.bot_token)
             self.log.info("Discord client logged in successfully.")

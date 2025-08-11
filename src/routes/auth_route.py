@@ -14,7 +14,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 @router.post("/signup")
-def signup(login_data: LoginRequest): # Use the LoginRequest model for signup as well
+def signup(login_data: LoginRequest):
     db = MongoDBService()
     if db.get_user_by_email(login_data.email):
         raise HTTPException(
