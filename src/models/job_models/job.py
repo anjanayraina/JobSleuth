@@ -17,3 +17,4 @@ class Job(BaseModel):
     source: Optional[str] = "telegram"
     fetched_at: datetime = Field(default_factory=datetime.now)
     job_type: Optional[str] = None
+    flagged: Optional[bool] = False

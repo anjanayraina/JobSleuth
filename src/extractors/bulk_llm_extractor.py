@@ -10,7 +10,7 @@ def extract_jobs_with_bulk_llm(api_key: str, texts: list[str]) -> list:
     if not texts:
         return []
 
-    url = "https://ocr-service-eyu3.onrender.com/LLM/bulk-prompt-to-json"
+    url = "https://ai-marketplace-iypm.onrender.com/LLM/bulk-prompt-to-json"
 
     data = {
         "apiKey": api_key,
@@ -20,122 +20,72 @@ def extract_jobs_with_bulk_llm(api_key: str, texts: list[str]) -> list:
         "responseStruct": [
             {
                 "fieldName": "title",
-                "fieldDtype": "string",
-                "fieldDescription": "Job title (e.g., “Compliance Analyst”)",
+                "fieldDtype": "str",
+                "fieldDescription": "Job title (e.g., “Compliance Analyst , Software Developer”)",
                 "nullable": False,
                 "required": True,
-                "defaultValue": "",
-                "enum": [],
-                "minItems": 0,
-                "maxItems": 0,
-                "minLength": 1,
-                "maxLength": 0,
-                "pattern": ""
             },
             {
                 "fieldName": "company",
-                "fieldDtype": "string",
+                "fieldDtype": "str",
                 "fieldDescription": "Hiring company name",
                 "nullable": False,
                 "required": True,
-                "defaultValue": "",
-                "enum": [],
-                "minItems": 0,
-                "maxItems": 0,
-                "minLength": 1,
-                "maxLength": 0,
-                "pattern": ""
+
             },
             {
                 "fieldName": "location",
-                "fieldDtype": "string",
+                "fieldDtype": "str",
                 "fieldDescription": "Job location (city, country) or empty string if unknown",
                 "nullable": True,
                 "required": False,
-                "defaultValue": "",
-                "enum": [],
-                "minItems": 0,
-                "maxItems": 0,
-                "minLength": 0,
-                "maxLength": 0,
-                "pattern": ""
+
             },
             {
                 "fieldName": "salary",
-                "fieldDtype": "string",
+                "fieldDtype": "str",
                 "fieldDescription": "Salary range text or empty string if not provided",
                 "nullable": True,
-                "required": False,
-                "defaultValue": "",
-                "enum": [],
-                "minItems": 0,
-                "maxItems": 0,
-                "minLength": 0,
-                "maxLength": 0,
-                "pattern": ""
+                "required": False
             },
             {
                 "fieldName": "link",
-                "fieldDtype": "string",
+                "fieldDtype": "str",
                 "fieldDescription": "Direct URL to the job posting",
                 "nullable": True,
                 "required": False,
-                "defaultValue": "",
-                "enum": [],
-                "minItems": 0,
-                "maxItems": 0,
-                "minLength": 0,
-                "maxLength": 0,
-                "pattern": ""
+
             },
             {
                 "fieldName": "description",
-                "fieldDtype": "string",
+                "fieldDtype": "str",
                 "fieldDescription": "A brief description of the job posting",
                 "nullable": True,
                 "required": False,
-                "defaultValue": "",
-                "enum": [],
-                "minItems": 0,
-                "maxItems": 0,
-                "minLength": 0,
-                "maxLength": 0,
-                "pattern": ""
             },
 
             {
                 "fieldName": "contact",
-                "fieldDtype": "string",
+                "fieldDtype": "str",
                 "fieldDescription": "Recruiter email or profile link if available",
                 "nullable": True,
                 "required": False,
-                "defaultValue": "",
-                "enum": [],
-                "minItems": 0,
-                "maxItems": 0,
-                "minLength": 0,
-                "maxLength": 0,
-                "pattern": ""
+
             },
             {
                 "fieldName": "tags",
-                "fieldDtype": "array<string>",
+                "fieldDtype": "List<str>",
                 "fieldDescription": "Keywords from the job postings that can be used for searching the job postings",
                 "nullable": True,
                 "required": False,
-                "defaultValue": "[]",
-                "enum": [],
-                "minItems": 0,
-                "maxItems": 0,
-                "minLength": 0,
-                "maxLength": 0,
-                "pattern": ""
+
             }
         ]
     }
 
     try:
         log.info(f"Sending {len(texts)} job postings to bulk LLM service...")
+        print(f"Request Body : {data}")
         response = requests.post(url, json=data, timeout=300)
         response.raise_for_status()
 

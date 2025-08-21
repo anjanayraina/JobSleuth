@@ -5,12 +5,10 @@ from typing import Optional
 from extractors.regex_extractor import extract_salary, extract_email, extract_telegram_username, extract_url
 from extractors.ner_extractor import extract_ner_fields
 from extractors.tagger import extract_tags
-# Import the new bulk extractor
 from extractors.bulk_llm_extractor import extract_jobs_with_bulk_llm
 from helper.config import ConfigSingleton
 from helper.logger import Logger
 from models.job_models.job import Job
-
 
 class JobExtractorService:
     def __init__(self):
@@ -51,9 +49,7 @@ class JobExtractorService:
         # Heuristic checks for complexity
         links = re.findall(r'https?://[^\s\)]+', text)
         is_complex = self._is_potentially_complex(text, links)
-
-        # The main decision gate: if the most critical info is missing, it's complex.
-        if not (title and company):
+        if not (title and company and links):
             is_complex = True
 
         simple_data = {
@@ -65,15 +61,12 @@ class JobExtractorService:
             "contact": extract_email(text) or extract_telegram_username(text),
             "description": text,
             "date_posted": message.get('date', ""),
-            "source": "telegram"  # Or get from message
+            "source": "telegram"
         }
 
         return simple_data, is_complex
 
     def process_messages_in_batches(self, messages: list[dict]) -> list[Job]:
-        """
-        Orchestrates the hybrid extraction process for a list of messages.
-        """
         simple_jobs = []
         complex_job_texts = []
 
@@ -94,9 +87,9 @@ class JobExtractorService:
                 if job_obj:
                     simple_jobs.append(job_obj)
 
-        # Now, process the batch of complex jobs with a single API call
         llm_extracted_jobs = []
         if complex_job_texts:
+            print(complex_job_texts)
             llm_results = extract_jobs_with_bulk_llm(self.config.hugging_face_api, complex_job_texts)
             for job_data in llm_results:
                 job_obj = self._create_job_object(job_data)
@@ -107,10 +100,7 @@ class JobExtractorService:
         return simple_jobs + llm_extracted_jobs
 
     def _create_job_object(self, job_data: dict) -> Optional[Job]:
-        """
-        Creates a Pydantic Job object from a dictionary of data.
-        """
-        # Ensure the most critical fields are present
+
         if not (job_data.get("title") and job_data.get("company")):
             return None
 
@@ -118,11 +108,9 @@ class JobExtractorService:
         full_text = job_data.get("description", "") or job_data.get("title", "")
         job_data["tags"] = extract_tags(full_text)
         job_data["job_hash"] = self._generate_job_hash(job_data)
-
         return Job(**job_data)
 
     def _generate_job_hash(self, job_fields: dict) -> str:
-        """Generates a unique hash for a job posting."""
         base_str = (
                 (job_fields.get("title") or "").lower().strip() + "|" +
                 (job_fields.get("company") or "").lower().strip() + "|" +
