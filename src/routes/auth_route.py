@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from datetime import timedelta
 
+from models.user_models.sign_up_request import SignUpRequest
 from services.mongodb_service import MongoDBService
 from helper.password import verify_password, get_password_hash
 from helper.auth_helper import create_access_token
@@ -14,7 +15,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 @router.post("/signup")
-def signup(login_data: LoginRequest):
+def signup(login_data: SignUpRequest):
     db = MongoDBService()
     if db.get_user_by_email(login_data.email):
         raise HTTPException(
@@ -23,7 +24,7 @@ def signup(login_data: LoginRequest):
         )
 
     hashed_password = get_password_hash(login_data.password)
-    user_data = {"email": login_data.email, "hashed_password": hashed_password}
+    user_data = {"email": login_data.email, "hashed_password": hashed_password , "username": login_data.username}
     db.create_user(user_data)
 
     log.info(f"New user signed up: {login_data.email}")

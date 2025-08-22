@@ -9,8 +9,7 @@ class User(BaseModel):
     disabled: bool = False
     username: str
     email: EmailStr
-    password: str
+    hashed_password: str
     subscription: Subscription = Subscription.FREE
     liked_jobs: List[str] = Field(default_factory=list)
     saved_jobs: List[str] = Field(default_factory=list)
-    resume_data: Optional[ResumeData] = None
