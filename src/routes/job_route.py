@@ -15,7 +15,7 @@ from models.job_models.job import Job
 from models.job_models.job_response import JobResponse
 from models.job_models.extract_job_request import ExtractJobsRequest
 from models.user_models.user import User
-from helper.security import get_current_user
+from helper.security import get_current_user, get_current_admin_user
 from helper.logger import Logger
 from typing import List
 router = APIRouter()
@@ -60,12 +60,8 @@ def get_single_job(job_id: str):
 
 
 @router.post("/run-workflow", status_code=200)
-async def run_job_workflow(current_user: User = Depends(get_current_user)):
-    """
-    Triggers the entire workflow to fetch, process, and store new jobs.
-    This endpoint is protected and requires authentication.
-    """
-    log.info(f"Job workflow triggered by user: {current_user.email}")
+async def run_job_workflow(current_admin: User = Depends(get_current_admin_user)):
+    log.info(f"Job workflow triggered by ADMIN user: {current_admin.email}")
     workflow_service = JobsWorkflowService()
     try:
         inserted_count = await workflow_service.run_workflow()
