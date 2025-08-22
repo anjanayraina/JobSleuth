@@ -21,7 +21,7 @@ def extract_jobs_with_bulk_llm(api_key: str, texts: list[str]) -> list:
             {
                 "fieldName": "title",
                 "fieldDtype": "str",
-                "fieldDescription": "Job title (e.g., “Compliance Analyst , Software Developer”)",
+                "fieldDescription": "Job title (e.g., “Compliance Analyst , Software Developer , Data Analyst)”)",
                 "nullable": False,
                 "required": True,
             },

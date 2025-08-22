@@ -1,16 +1,23 @@
 from http.client import HTTPException
 
 from fastapi import APIRouter
-from services.jobs_service import get_jobs_service, get_job_by_id_service
+
+
 from services.job_extractor_service import JobExtractorService
 from fetchers.telegram_group_fetcher import TelegramGroupFetcher
 from services.mongodb_service import MongoDBService
-from helper.logger import Logger
-from typing import List
+
+
+from fastapi import APIRouter, Depends, Query, HTTPException
+from services.jobs_service import get_jobs_service, get_job_by_id_service
+from services.job_workflow_service import JobsWorkflowService
 from models.job_models.job import Job
 from models.job_models.job_response import JobResponse
 from models.job_models.extract_job_request import ExtractJobsRequest
-
+from models.user_models.user import User
+from helper.security import get_current_user
+from helper.logger import Logger
+from typing import List
 router = APIRouter()
 log = Logger(__name__)
 extractor = JobExtractorService()
@@ -50,24 +57,19 @@ def get_single_job(job_id: str):
         raise HTTPException(status_code=404, detail="Job not found")
 
     return job
-@router.get("/fetch_extracted_jobs", response_model=List[Job])
-async def fetch_extracted_jobs():
-    fetcher = TelegramGroupFetcher()
-    messages = await fetcher.fetch_messages()
-    jobs = []
-    for message in messages:
-        job_obj = extractor.extract_job_fields(message)
-        if job_obj:
-            jobs.append(job_obj)
-    log.info(f"Fetched and extracted {len(jobs)} jobs (not saved to DB).")
-    return jobs
 
-@router.post("/extract_jobs", response_model=List[Job])
-async def extract_jobs_from_texts(request: ExtractJobsRequest):
-    jobs = []
-    for text in request.texts:
-        message = {"text": text, "date": "placeholder_date"}
-        job = extractor.extract_job_fields(message)
-        if job:
-            jobs.append(job)
-    return jobs
+
+@router.post("/run-workflow", status_code=200)
+async def run_job_workflow(current_user: User = Depends(get_current_user)):
+    """
+    Triggers the entire workflow to fetch, process, and store new jobs.
+    This endpoint is protected and requires authentication.
+    """
+    log.info(f"Job workflow triggered by user: {current_user.email}")
+    workflow_service = JobsWorkflowService()
+    try:
+        inserted_count = await workflow_service.run_workflow()
+        return {"status": "success", "new_jobs_inserted": inserted_count}
+    except Exception as e:
+        log.error(f"An error occurred during the workflow: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred during the workflow.")
