@@ -24,7 +24,7 @@ class TelegramGroupFetcher:
         groups = self.load_groups()
         results = []
         if not since:
-            since = datetime.now(timezone.utc) - timedelta(hours=2)
+            since = datetime.now(timezone.utc) - timedelta(hours=12)
         async with TelegramClient(self.session_name, self.api_id, self.api_hash) as client:
             for group in groups:
                 self.logger.info(f"Fetching messages from group: {group}")

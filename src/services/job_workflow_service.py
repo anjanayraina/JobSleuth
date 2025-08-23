@@ -1,6 +1,5 @@
 import asyncio
 from fetchers.telegram_group_fetcher import TelegramGroupFetcher
-from fetchers.discord_fetcher import DiscordFetcher
 from services.job_extractor_service import JobExtractorService
 from services.mongodb_service import MongoDBService
 from helper.logger import Logger
@@ -11,10 +10,8 @@ class JobsWorkflowService:
         self.extractor = JobExtractorService()
         self.db = MongoDBService(collection_name)
         self.logger = Logger(__name__)
-        # A list of all active fetcher instances
         self.fetchers = [
             TelegramGroupFetcher(),
-            DiscordFetcher()
         ]
 
     async def run_workflow(self):
