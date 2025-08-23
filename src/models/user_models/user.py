@@ -7,12 +7,13 @@ from typing import Optional , List
 from pydantic import Field
 
 class User(BaseModel):
-    email: EmailStr
-    disabled: bool = False
+
     username: str
     email: EmailStr
-    hashed_password: str
+    disabled: bool = False
     subscription: Subscription = Subscription.FREE
     liked_jobs: List[str] = Field(default_factory=list)
     saved_jobs: List[str] = Field(default_factory=list)
-    role : Role = Role.USER
+    role: Role = Role.USER
+    resume_data: Optional[ResumeData] = None
+    hashed_password: str
