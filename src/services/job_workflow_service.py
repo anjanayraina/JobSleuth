@@ -1,23 +1,44 @@
+import asyncio
 from fetchers.telegram_group_fetcher import TelegramGroupFetcher
+from fetchers.discord_fetcher import DiscordFetcher
 from services.job_extractor_service import JobExtractorService
 from services.mongodb_service import MongoDBService
 from helper.logger import Logger
-import asyncio
 
 
 class JobsWorkflowService:
     def __init__(self, collection_name=None):
-        self.fetcher = TelegramGroupFetcher()
         self.extractor = JobExtractorService()
         self.db = MongoDBService(collection_name)
         self.logger = Logger(__name__)
+        # A list of all active fetcher instances
+        self.fetchers = [
+            TelegramGroupFetcher(),
+            DiscordFetcher()
+        ]
 
     async def run_workflow(self):
-        self.logger.info("Starting job fetch workflow...")
-        messages = await self.fetcher.fetch_messages()
+        self.logger.info("Starting job fetch workflow for all sources...")
 
-        processed_jobs = self.extractor.process_messages_in_batches(messages)
+        # Concurrently fetch messages from all sources
+        fetch_tasks = [fetcher.fetch_messages() for fetcher in self.fetchers]
+        results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
 
+        all_messages = []
+        for i, result in enumerate(results):
+            fetcher_name = self.fetchers[i].__class__.__name__
+            if isinstance(result, Exception):
+                self.logger.error(f"Failed to fetch from {fetcher_name}: {result}")
+            else:
+                self.logger.info(f"Fetched {len(result)} messages from {fetcher_name}")
+                all_messages.extend(result)
+
+        self.logger.info(f"Total messages fetched: {len(all_messages)}")
+
+        # Let the extractor service handle the entire batch with its hybrid logic
+        processed_jobs = self.extractor.process_messages_in_batches(all_messages)
+
+        # Filter out jobs that already exist in the database
         jobs_to_insert = []
         for job in processed_jobs:
             if not self.db.job_exists(job.job_hash):
@@ -26,13 +47,7 @@ class JobsWorkflowService:
         if jobs_to_insert:
             num_inserted = self.db.insert_many(jobs_to_insert)
             self.logger.info(f"Successfully inserted {num_inserted} new jobs into the database.")
+            return num_inserted
         else:
             self.logger.info("No new valid jobs found to insert.")
-
-        return len(jobs_to_insert)
-
-
-if __name__ == "__main__":
-    workflow = JobsWorkflowService()
-    num_inserted = asyncio.run(workflow.run_workflow())
-    print(f"Workflow finished. Inserted {num_inserted} new jobs.")
+            return 0

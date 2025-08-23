@@ -85,14 +85,11 @@ def extract_jobs_with_bulk_llm(api_key: str, texts: list[str]) -> list:
 
     try:
         log.info(f"Sending {len(texts)} job postings to bulk LLM service...")
-        print(f"Request Body : {data}")
         response = requests.post(url, json=data, timeout=300)
         response.raise_for_status()
-
         extracted_data = response.json()
         log.info(f"Successfully received {len(extracted_data)} results from LLM.")
         return extracted_data
-
     except requests.exceptions.HTTPError as http_err:
         log.error(f"HTTP error during bulk LLM call: {http_err}")
         log.error(f"Response body: {response.text}")
