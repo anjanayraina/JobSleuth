@@ -1,12 +1,19 @@
+import yaml
+import logging.config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.job_route import router as jobs_router
 from routes.job_search import router as job_search_router
-from routes.auth_route import router as auth_router # 1. Import the auth router
-from helper.logger import Logger
+from routes.auth_route import router as auth_router
 
-log = Logger(__name__)
-app = FastAPI(title="JobPilot Backend")
+
+with open("log_conf.yaml", 'r') as f:
+    log_config = yaml.safe_load(f)
+    logging.config.dictConfig(log_config)
+# ------------------------------------
+
+log = logging.getLogger(__name__)
+app = FastAPI(title="JobSleuth Backend")
 
 origins = [
     "http://localhost:5173",
@@ -20,10 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_router)
-app.include_router(jobs_router)
-app.include_router(job_search_router)
+app.include_router(auth_router, prefix="/api")
+app.include_router(jobs_router, prefix="/api")
+app.include_router(job_search_router, prefix="/api")
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
