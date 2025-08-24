@@ -10,7 +10,6 @@ from routes.auth_route import router as auth_router
 with open("log_conf.yaml", 'r') as f:
     log_config = yaml.safe_load(f)
     logging.config.dictConfig(log_config)
-# ------------------------------------
 
 log = logging.getLogger(__name__)
 app = FastAPI(title="JobSleuth Backend")
