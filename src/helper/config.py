@@ -19,5 +19,6 @@ class ConfigSingleton:
             cls._instance.jwt_secret_key = os.getenv('JWT_SECRET_KEY')
             cls._instance.jwt_algorithm = os.getenv('JWT_ALGORITHM' , 'HS256')
             cls._instance.hugging_face_api = os.getenv('HUGGING_FACE_API')
+            cls._instance.telegram_string_session = os.getenv('TELEGRAM_STRING_SESSION')
 
         return cls._instance

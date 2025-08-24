@@ -1,19 +1,22 @@
-from telethon import TelegramClient
-from telethon.tl.types import MessageEntityTextUrl
+import os
+import re
 import json
 from datetime import datetime, timezone, timedelta
+from telethon import TelegramClient
+from telethon.sessions import StringSession
+from telethon.tl.types import MessageEntityTextUrl
 from helper.config import ConfigSingleton
 from helper.logger import Logger
-from extractors.regex_extractor import extract_url
-import re
+
 
 class TelegramGroupFetcher:
     def __init__(self, groups_path=None):
         self.config = ConfigSingleton()
         self.api_id = self.config.api_id
         self.api_hash = self.config.api_hash
+        # Use the session string from the config
+        self.string_session = self.config.telegram_string_session
         self.groups_path = groups_path or self.config.groups_path
-        self.session_name = "telegram_fetcher_session.session"
         self.logger = Logger(__name__)
 
     def load_groups(self):
@@ -21,43 +24,47 @@ class TelegramGroupFetcher:
             return json.load(f)
 
     async def fetch_messages(self, since=None):
+        if not self.string_session:
+            self.logger.error("TELEGRAM_STRING_SESSION is not set. Skipping Telegram fetch.")
+            return []
+
         groups = self.load_groups()
         results = []
         if not since:
             since = datetime.now(timezone.utc) - timedelta(hours=12)
-        async with TelegramClient(self.session_name, self.api_id, self.api_hash) as client:
+
+        async with TelegramClient(StringSession(self.string_session), self.api_id, self.api_hash) as client:
             for group in groups:
-                self.logger.info(f"Fetching messages from group: {group}")
-                async for message in client.iter_messages(group):
-                    if message.date >= since and message.text:
-                        links = self.extract_all_links(message)
-                        results.append({
-                            "group": group,
-                            "date": str(message.date),
-                            "text": message.text,
-                            "links": links
-                        })
-                    elif message.date < since:
-                        break
-        self.logger.info(f"Fetched {len(results)} messages.")
+                try:
+                    self.logger.info(f"Fetching messages from group: {group}")
+                    async for message in client.iter_messages(group, limit=250):
+                        if message.date >= since and message.text:
+                            results.append({
+                                "group": group,
+                                "date": str(message.date),
+                                "text": message.text,
+                                "links": self._extract_all_links(message),
+                                "source": "telegram"
+                            })
+                        elif message.date < since:
+                            break
+                except Exception as e:
+                    self.logger.error(f"Could not fetch from Telegram group '{group}': {e}")
+
+        self.logger.info(f"Fetched {len(results)} messages from Telegram.")
         return results
 
-    def extract_all_links(self, message):
+    def _extract_all_links(self, message):
         links = set()
-
         if getattr(message, "text", None):
-            url_pattern = r'https?://[^\s\)\]]+'
-            links.update(re.findall(url_pattern, message.text))
-
+            links.update(re.findall(r'https?://[^\s\)]+', message.text))
         if getattr(message, "entities", None):
             for entity in message.entities:
                 if isinstance(entity, MessageEntityTextUrl):
                     links.add(entity.url)
-
         if getattr(message, "reply_markup", None):
             for row in message.reply_markup.rows:
                 for button in row.buttons:
                     if hasattr(button, "url") and button.url:
                         links.add(button.url)
-
         return list(links)
