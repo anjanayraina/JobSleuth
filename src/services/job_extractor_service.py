@@ -51,7 +51,7 @@ class JobExtractorService:
             "contact": extract_email(text) or extract_telegram_username(text),
             "description": text,
             "date_posted": message.get('date', ""),
-            "source": message.get("source", "unknown")
+            "source": message.get("source", "telegram")
         }
         return simple_data, is_complex
 

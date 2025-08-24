@@ -17,7 +17,6 @@ class JobsWorkflowService:
     async def run_workflow(self):
         self.logger.info("Starting job fetch workflow for all sources...")
 
-        # Concurrently fetch messages from all sources
         fetch_tasks = [fetcher.fetch_messages() for fetcher in self.fetchers]
         results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
 
@@ -32,7 +31,6 @@ class JobsWorkflowService:
 
         self.logger.info(f"Total messages fetched: {len(all_messages)}")
 
-        # Let the extractor service handle the entire batch with its hybrid logic
         processed_jobs = self.extractor.process_messages_in_batches(all_messages)
 
         # Filter out jobs that already exist in the database
