@@ -3,7 +3,6 @@ import re
 from typing import Optional, List, Tuple, Dict
 
 from extractors.regex_extractor import extract_salary, extract_email, extract_telegram_username
-from extractors.ner_extractor import extract_ner_fields
 from extractors.tagger import extract_tags
 from extractors.bulk_llm_extractor import extract_jobs_with_bulk_llm
 from helper.config import ConfigSingleton
@@ -31,9 +30,12 @@ class JobExtractorService:
 
     def _extract_simple_fields(self, message: Dict) -> Tuple[Dict, bool]:
         text = message.get('text', '')
-        ner_fields = extract_ner_fields(text)
-        title = ner_fields.get("title")
-        company = ner_fields.get("company")
+        title_company_pattern = re.compile(r'(?i)([\w\s.&,-]+)\s+is\s+hiring\s+a[n]?\s+([\w\s/-]+)')
+        match = title_company_pattern.search(text)
+
+        title = match.group(2).strip() if match else None
+        company = match.group(1).strip() if match else None
+
         links = re.findall(r'https?://[^\s\)]+', text)
 
         is_complex = self._is_potentially_complex(text, links)
@@ -43,7 +45,7 @@ class JobExtractorService:
         simple_data = {
             "title": title,
             "company": company,
-            "location": ner_fields.get("location"),
+            "location": "",  # NER was providing this; now the LLM will.
             "salary": extract_salary(text),
             "link": links[0] if links else None,
             "contact": extract_email(text) or extract_telegram_username(text),
@@ -90,7 +92,6 @@ class JobExtractorService:
         job_data["tags"] = extract_tags(full_text)
         job_data["job_hash"] = self._generate_job_hash(job_data)
 
-        # Ensure all required Job model fields are present
         required_fields = {"title", "company", "description", "job_hash"}
         if not required_fields.issubset(job_data.keys()):
             self.logger.warning(f"Skipping job due to missing required fields: {job_data.get('title')}")
