@@ -5,7 +5,7 @@ from services.mongodb_service import MongoDBService
 from models.job_models.job_response import JobResponse
 from models.job_models.job import  Job
 
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 
 def get_jobs_service(tags: str = None) -> List[Job]:
@@ -46,3 +46,20 @@ def get_latest_jobs_service(limit: int) -> List[JobResponse]:
 
     jobs = [JobResponse.model_validate(job) for job in raw_jobs]
     return jobs
+
+
+def get_jobs_service_paginated(tags: str = None, skip: int = 0, limit: int = 10) -> Dict[str, Any]:
+    db = MongoDBService()
+    query = {}
+    if tags:
+        query["tags"] = {"$in": tags.split(",")}
+
+    # Get the total count of jobs that match the query
+    total_count = db.jobs_col.count_documents(query)
+
+    # Fetch the paginated list of jobs
+    raw_jobs = db.jobs_col.find(query).sort("fetched_at", DESCENDING).skip(skip).limit(limit)
+
+    jobs = [JobResponse.model_validate(job) for job in raw_jobs]
+
+    return {"total": total_count, "jobs": jobs}

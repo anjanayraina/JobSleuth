@@ -2,14 +2,15 @@ from http.client import HTTPException
 
 from fastapi import APIRouter
 
-
+from models.job_models.paginated_job_response import PaginatedJobResponse
 from services.job_extractor_service import JobExtractorService
 from fetchers.telegram_group_fetcher import TelegramGroupFetcher
 from services.mongodb_service import MongoDBService
 
 
 from fastapi import APIRouter, Depends, Query, HTTPException
-from services.jobs_service import get_jobs_service, get_job_by_id_service, get_latest_jobs_service
+from services.jobs_service import get_jobs_service, get_job_by_id_service, get_latest_jobs_service, \
+    get_jobs_service_paginated
 from services.job_workflow_service import JobsWorkflowService
 from models.job_models.job import Job
 from models.job_models.job_response import JobResponse
@@ -78,3 +79,10 @@ def health_check():
     """A simple endpoint to check if the API is running."""
     log.info("Health check endpoint was called.")
     return {"status": "ok", "message": "API is healthy"}
+
+@router.get("/jobs/paginated", response_model=PaginatedJobResponse, tags=["Jobs"]) # <-- Use new response model
+def get_jobs(skip: int = Query(0, ge=0), limit: int = Query(10, ge=1, le=100)):
+    """Gets a paginated list of jobs from the database."""
+    log.info(f"Request received for all jobs with skip: {skip}, limit: {limit}")
+    paginated_result = get_jobs_service_paginated(skip=skip, limit=limit)
+    return paginated_result
