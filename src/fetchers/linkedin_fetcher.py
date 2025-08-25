@@ -109,7 +109,7 @@ class WebsiteExtractor:
         jobs_to_insert = []
         for job in job_data:
             # Generate a hash to prevent duplicates
-            job_hash = self.extractor_service.generate_job_hash(job)
+            job_hash = self.extractor_service._generate_job_hash(job)
 
             if not self.db_service.job_exists(job_hash):
                 job_document = {
@@ -118,10 +118,10 @@ class WebsiteExtractor:
                     "location": job.get("location"),
                     "link": job.get("link"),
                     "job_hash": job_hash,
-                    "description": "",  # Set description to empty as requested
-                    "source": "linkedin",  # Set source to linkedin
+                    "description": "",
+                    "source": "linkedin",
                     "date_posted": time.strftime('%Y-%m-%d %H:%M:%S'),
-                    "tags": [],  # You could add a tagger here later if needed
+                    "tags": [],
                 }
                 jobs_to_insert.append(job_document)
 
@@ -161,7 +161,7 @@ class WebsiteExtractor:
 
 
 if __name__ == "__main__":
-    URL = "https://www.linkedin.com/jobs/search?keywords=&location=India&f_TPR=r86400"
+    URL = "https://www.linkedin.com/jobs/search/?currentJobId=4288508726&f_TPR=r86400&keywords=&location=remote"
 
     extractor = WebsiteExtractor()
 
