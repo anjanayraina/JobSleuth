@@ -30,3 +30,5 @@ app.include_router(auth_router, prefix="/api")
 app.include_router(jobs_router, prefix="/api")
 app.include_router(job_search_router, prefix="/api")
 
+
+

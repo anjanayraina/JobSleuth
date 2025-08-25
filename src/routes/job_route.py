@@ -9,7 +9,7 @@ from services.mongodb_service import MongoDBService
 
 
 from fastapi import APIRouter, Depends, Query, HTTPException
-from services.jobs_service import get_jobs_service, get_job_by_id_service
+from services.jobs_service import get_jobs_service, get_job_by_id_service, get_latest_jobs_service
 from services.job_workflow_service import JobsWorkflowService
 from models.job_models.job import Job
 from models.job_models.job_response import JobResponse
@@ -24,7 +24,7 @@ extractor = JobExtractorService()
 db = MongoDBService()
 
 
-@router.post("/trigger_fetch_jobs")
+@router.post("/trigger_fetch_jobs" , tags=["Jobs"])
 async def trigger_fetch_jobs():
     fetcher = TelegramGroupFetcher()
     messages = await fetcher.fetch_messages()
@@ -42,21 +42,11 @@ async def trigger_fetch_jobs():
     return {"status": "success", "inserted_jobs": inserted_count}
 
 
-@router.get("/jobs", response_model=List[JobResponse])
+@router.get("/jobs", response_model=List[JobResponse] , tags=["Jobs"])
 def get_jobs():
     log.info(f"Request received for jobs")
     return get_jobs_service()
 
-
-@router.get("/jobs/{job_id}", response_model=Job)
-def get_single_job(job_id: str):
-    log.info(f"Request received for job with ID: {job_id}")
-    job = get_job_by_id_service(job_id)
-
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-
-    return job
 
 
 @router.post("/run-workflow", status_code=200)
@@ -69,3 +59,22 @@ async def run_job_workflow(current_admin: User = Depends(get_current_admin_user)
     except Exception as e:
         log.error(f"An error occurred during the workflow: {e}")
         raise HTTPException(status_code=500, detail="An error occurred during the workflow.")
+
+
+
+@router.get("/jobs/latest", response_model=List[JobResponse], tags=["Jobs"])
+def get_latest_jobs(limit: int = Query(10, gt=0, le=100, description="Number of latest jobs to fetch")):
+    log.info(f"Request received for the {limit} latest jobs.")
+    try:
+        jobs = get_latest_jobs_service(limit)
+        return jobs
+    except Exception as e:
+        log.error(f"Failed to fetch latest jobs: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred while fetching the latest jobs.")
+
+
+@router.get("/health", status_code=200, tags=["Health"])
+def health_check():
+    """A simple endpoint to check if the API is running."""
+    log.info("Health check endpoint was called.")
+    return {"status": "ok", "message": "API is healthy"}

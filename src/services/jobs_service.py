@@ -1,4 +1,6 @@
 # src/services/jobs_service.py
+from pymongo import DESCENDING
+
 from services.mongodb_service import MongoDBService
 from models.job_models.job_response import JobResponse
 from models.job_models.job import  Job
@@ -36,3 +38,11 @@ def get_job_by_id_service(job_id: str) -> Optional[JobResponse]:
 
     # If no job is found, we return None.
     return None
+
+
+def get_latest_jobs_service(limit: int) -> List[JobResponse]:
+    db = MongoDBService()
+    raw_jobs = db.jobs_col.find().sort("fetched_at", DESCENDING).limit(limit)
+
+    jobs = [JobResponse.model_validate(job) for job in raw_jobs]
+    return jobs
